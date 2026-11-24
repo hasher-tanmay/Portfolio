@@ -1,0 +1,275 @@
+.cover-frame { position: relative; width: min(100%, 31rem); }
+.cover-frame > .cover-main { width: 100%; }
+.detail-panel { position: relative; }
+
+.eightbit {
+  --mascot-target: 3.75rem;
+  --mascot-size: 3.75rem;
+  --bubble-size: 23rem;
+  --mascot-overhang: .2rem;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.eightbit-button {
+  position: absolute;
+  inset: auto var(--mascot-overhang) calc(100% - .45rem) auto;
+  display: grid;
+  place-items: center;
+  width: var(--mascot-target);
+  height: var(--mascot-target);
+  padding: 0;
+  border: 0;
+  border-radius: .35rem;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+.eightbit-button:disabled { cursor: default; pointer-events: none; }
+.eightbit-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.eightbit-bubble {
+  position: absolute;
+  inset: auto calc(var(--mascot-overhang) + var(--mascot-target) + .45rem) calc(100% + .25rem) auto;
+  width: max-content;
+  max-width: min(var(--bubble-size), calc(100% - var(--mascot-target) - 1rem));
+  padding: .45rem 1.8rem .45rem .65rem;
+  border: 1px solid #8a6d58;
+  border-radius: .55rem;
+  color: var(--ink);
+  background: var(--cover);
+  box-shadow: 0 .25rem .85rem #0006;
+  font: 400 .875rem/1.35 var(--sans);
+  overflow-wrap: anywhere;
+  opacity: 1;
+}
+.eightbit-bubble[data-open="false"] { display: none; }
+.eightbit-bubble[data-fading="true"] { opacity: 0; transition: opacity .24s ease-out; }
+.eightbit-bubble::after {
+  content: '';
+  position: absolute;
+  inset: auto -.25rem .65rem auto;
+  width: .45rem;
+  height: .45rem;
+  transform: rotate(45deg);
+  background: inherit;
+  border: solid #8a6d58;
+  border-width: 1px 1px 0 0;
+}
+.eightbit-bubble[data-anchored] {
+  position: fixed;
+  z-index: 5;
+  inset: var(--popover-y, 0) auto auto var(--popover-x, 0);
+  max-width: min(19rem, var(--popover-width, calc(100vw - 16px)));
+  font-size: .8125rem;
+  pointer-events: none;
+}
+.eightbit-bubble[data-anchored]:not([data-side]) { visibility: hidden; }
+.eightbit-bubble[data-side="attached"] {
+  --popover-arrow-rise: 6px;
+  top: calc(var(--popover-y) + var(--popover-arrow-rise));
+}
+.eightbit-bubble[data-side="attached"]::after {
+  inset: calc(-1 * var(--popover-arrow-rise) - 1px) auto auto calc(var(--popover-tail) - 1px);
+  width: 12px;
+  height: calc(var(--popover-arrow-rise) + 1px);
+  border: 0;
+  background: #8a6d58;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transform: translateX(-50%);
+}
+.eightbit-bubble[data-side="left"]::after {
+  inset: var(--popover-tail) -.25rem auto auto;
+  transform: translateY(-50%) rotate(45deg);
+}
+.eightbit-bubble:is([data-side="below"], [data-side="above"])::after {
+  inset: -.25rem auto auto var(--popover-tail);
+  transform: translateX(-50%) rotate(-45deg);
+}
+.eightbit-bubble[data-side="above"]::after {
+  top: auto;
+  bottom: -.25rem;
+  transform: translateX(-50%) rotate(135deg);
+}
+.eightbit-bubble a, .eightbit-close { pointer-events: auto; }
+.eightbit-contact { margin-top: .25rem; color: var(--copper); }
+.eightbit-contact a { display: inline-block; max-width: 100%; }
+.eightbit-close {
+  position: absolute;
+  top: .1rem;
+  right: .12rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: .2rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: 1rem/1 var(--sans);
+  padding: 0;
+}
+
+.book .eightbit { --mascot-overhang: 3.35rem; }
+.book .eightbit-button { bottom: calc(100% - .42rem); }
+.book .eightbit-bubble {
+  --bubble-size: 29rem;
+  bottom: calc(100% - .42rem);
+  max-width: min(var(--bubble-size), calc(100% - var(--mascot-target) - 12rem));
+}
+:where([data-layout="compact"]) .eightbit {
+  --mascot-target: 2.75rem;
+  --mascot-size: 2.25rem;
+}
+:where([data-layout="compact"]) .cover-frame { width: var(--compact-width); }
+:where([data-layout="compact"]) :is(.cover-frame, .detail-panel) .eightbit-button { bottom: auto; top: -1.15rem; }
+
+.eightbit-masthead { position: relative; }
+.eightbit-masthead .eightbit-button {
+  --mascot-target: 2.75rem;
+  --mascot-size: 2.25rem;
+  z-index: 3;
+  inset: 0 3.35rem auto auto;
+}
+
+@media (max-height: 830px) {
+  .cover-frame .eightbit-bubble { bottom: auto; top: -1.8rem; }
+  .cover-frame .eightbit-button { bottom: auto; top: -1.15rem; }
+  .book .eightbit-bubble { padding-block: .3rem; }
+}
+
+@media (max-width: 360px), (max-height: 650px) {
+  .detail-panel .eightbit-button { bottom: auto; top: -1rem; }
+  .detail-panel .eightbit-bubble {
+    inset: calc(100% + .3rem) 0 auto auto;
+    max-width: min(100%, var(--bubble-size));
+  }
+  .detail-panel .eightbit-bubble::after { display: none; }
+  :where(:not([data-layout="compact"])).exhibit-stage .detail-panel .eightbit::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 1px;
+    height: 5rem;
+  }
+}
+
+/* The preview sprite uses a single percentage-based coordinate system. */
+.eightbit-art {
+  --sprite-ink: #151822;
+  --cream: #ffe6b7;
+  --case: #e1ba8b;
+  --bevel: #ab795b;
+  --sprite-copper: #e59560;
+  --blue: #aee8e2;
+  width: var(--mascot-size);
+  aspect-ratio: 1;
+  position: relative;
+  container-type: inline-size;
+  isolation: isolate;
+  pointer-events: none;
+}
+.eightbit-art :is(.sprite, .part) { position: absolute; }
+.eightbit-art .sprite { inset: 0; transform-origin: 50% 85%; }
+.eightbit-art .part { left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
+.eightbit-art .shadow { --x: 18%; --y: 88%; --w: 63%; --h: 5%; background: #111016a0; }
+.eightbit-art .shell {
+  --x: 17%; --y: 17%; --w: 68%; --h: 65%;
+  background: var(--sprite-ink);
+  clip-path: polygon(0 15%, 6% 15%, 6% 7%, 16% 7%, 16% 0, 84% 0, 84% 7%, 94% 7%, 94% 15%, 100% 15%, 100% 86%, 94% 86%, 94% 94%, 84% 94%, 84% 100%, 12% 100%, 12% 94%, 5% 94%, 5% 85%, 0 85%);
+}
+.eightbit-art .shell::before {
+  content: "";
+  position: absolute;
+  inset: 6% 6%;
+  background: linear-gradient(var(--cream) 0 12%, var(--case) 12% 86%, var(--bevel) 86%);
+  clip-path: inherit;
+}
+.eightbit-art .shell::after {
+  content: "";
+  position: absolute;
+  inset: 6% 37% auto 36%;
+  height: 7%;
+  background: var(--sprite-ink);
+  box-shadow: 0 1.8cqw var(--bevel);
+}
+.eightbit-art .screen {
+  --x: 25%; --y: 31%; --w: 52%; --h: 34%;
+  border: 2cqw solid var(--sprite-ink);
+  background: #212d3b;
+  box-shadow: inset 0 1.6cqw #405360, inset 0 -1.6cqw #101923;
+}
+.eightbit-art .eye {
+  --y: 40%; --w: 10%; --h: 12%;
+  background: var(--blue);
+  clip-path: polygon(18% 0, 82% 0, 82% 16%, 100% 16%, 100% 83%, 82% 83%, 82% 100%, 18% 100%, 18% 83%, 0 83%, 0 16%, 18% 16%);
+}
+.eightbit-art .eye-left { --x: 35%; }
+.eightbit-art .eye-right { --x: 56%; }
+.eightbit-art .mouth {
+  --x: 47%; --y: 54%; --w: 9%; --h: 6%;
+  background: var(--blue);
+  clip-path: polygon(0 0, 22% 0, 22% 42%, 78% 42%, 78% 0, 100% 0, 100% 70%, 78% 70%, 78% 100%, 22% 100%, 22% 70%, 0 70%);
+}
+.eightbit-art .dial {
+  --x: 28%; --y: 69%; --w: 13%; --h: 8%;
+  background: var(--sprite-ink);
+  clip-path: polygon(28% 0, 72% 0, 72% 23%, 100% 23%, 100% 76%, 72% 76%, 72% 100%, 28% 100%, 28% 76%, 0 76%, 0 23%, 28% 23%);
+}
+.eightbit-art .dial::before { content: ""; position: absolute; inset: 22%; background: var(--sprite-copper); clip-path: inherit; }
+.eightbit-art .vent {
+  --x: 61%; --y: 69%; --w: 13%; --h: 8%;
+  background: repeating-linear-gradient(90deg, var(--sprite-ink) 0 1.6cqw, transparent 1.6cqw 3.8cqw);
+}
+.eightbit-art .foot {
+  --y: 77%; --w: 22%; --h: 13%;
+  border: 2cqw solid var(--sprite-ink);
+  background: linear-gradient(90deg, var(--bevel) 0 28%, var(--case) 28%);
+  clip-path: polygon(0 28%, 16% 28%, 16% 0, 76% 0, 76% 25%, 100% 25%, 100% 100%, 0 100%);
+}
+.eightbit-art .foot-left { --x: 23%; }
+.eightbit-art .foot-right { --x: 58%; }
+.eightbit-art .hand {
+  --y: 53%; --w: 19%; --h: 18%;
+  background: var(--sprite-ink);
+  clip-path: polygon(17% 0, 78% 0, 78% 18%, 100% 18%, 100% 76%, 81% 76%, 81% 100%, 24% 100%, 24% 81%, 0 81%, 0 24%, 17% 24%);
+}
+.eightbit-art .hand::after { content: ""; position: absolute; inset: 21%; background: #5c7384; clip-path: inherit; }
+.eightbit-art .hand-left { --x: 7%; transform: rotate(15deg); }
+.eightbit-art .hand-right { --x: 74%; transform-origin: 16% 50%; }
+.eightbit-art .ribbon {
+  --x: 84%; --y: 47%; --w: 11%; --h: 26%;
+  background: var(--sprite-ink);
+  transform: rotate(-12deg);
+  transform-origin: 30% 80%;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 81%, 0 100%);
+}
+.eightbit-art .ribbon::before { content: ""; position: absolute; inset: 8% 20% 14%; background: var(--sprite-copper); clip-path: inherit; }
+.eightbit-art .spark { --x: 85%; --y: 15%; --w: 12%; --h: 12%; background: #ffd588; opacity: 0;
+  clip-path: polygon(37% 0, 63% 0, 63% 36%, 100% 36%, 100% 64%, 63% 64%, 63% 100%, 37% 100%, 37% 64%, 0 64%, 0 36%, 37% 36%);
+}
+.eightbit-art[data-pose="idle"] .sprite { animation: eightbit-float 1.3s steps(4, end); }
+.eightbit-art[data-pose="blink"] .eye { animation: eightbit-blink .55s steps(2, end); }
+.eightbit-art[data-pose="peek"] :is(.eye, .mouth) { animation: eightbit-peek 1.15s steps(3, end); }
+.eightbit-art[data-pose="wave"] .hand-left { transform-origin: 88% 40%; animation: eightbit-wave .9s steps(3, end); }
+.eightbit-art[data-pose="thinking"] .eye { animation: eightbit-think-eyes 1.35s steps(3, end); }
+.eightbit-art[data-pose="thinking"] .mouth { animation: eightbit-think-mouth 1.35s steps(2, end); }
+.eightbit-art[data-pose="celebrate"] .sprite { animation: eightbit-hop .75s steps(4, end); }
+.eightbit-art[data-pose="celebrate"] .spark { animation: eightbit-spark .75s steps(2, end); }
+
+@keyframes eightbit-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4%); } }
+@keyframes eightbit-blink { 0%, 32%, 75%, 100% { transform: scaleY(1); } 48%, 57% { transform: scaleY(.15); } }
+@keyframes eightbit-peek { 0%, 100% { transform: translateX(0); } 26%, 74% { transform: translateX(-45%); } }
+@keyframes eightbit-wave { 0%, 100% { transform: rotate(15deg); } 23%, 66% { transform: rotate(80deg); } 45%, 83% { transform: rotate(39deg); } }
+@keyframes eightbit-think-eyes { 0%, 100% { transform: translate(0); } 26%, 72% { transform: translate(28%, -28%); } }
+@keyframes eightbit-think-mouth { 0%, 100% { transform: scaleX(1); } 25%, 75% { transform: scaleX(.45) translateY(18%); } }
+@keyframes eightbit-hop { 0%, 100% { transform: translateY(0); } 48% { transform: translateY(-10%); } 83% { transform: scaleY(.93); } }
+@keyframes eightbit-spark { 0%, 100% { opacity: 0; } 25%, 70% { opacity: 1; } }

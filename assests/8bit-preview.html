@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>8bit animation preview</title>
+<style>
+  :root {
+    color-scheme: dark;
+    font-family: system-ui, sans-serif;
+    background: #141211;
+    color: #f1e5d2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+  main { width: min(100%, 46rem); }
+  h1 { margin: 0 0 .6rem; font: 2.5rem Georgia, serif; }
+  .stage {
+    display: grid;
+    place-items: center;
+    min-height: 19rem;
+    border: 1px solid #6c5141;
+    border-radius: .55rem;
+    background-color: #241f1c;
+    background-image: linear-gradient(#b3937220 1px, transparent 1px), linear-gradient(90deg, #b3937220 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: .45rem; margin-block: .8rem; }
+  button {
+    min-height: 44px;
+    border: 1px solid #785e4d;
+    border-radius: .3rem;
+    padding: .45rem .75rem;
+    background: #24201d;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  button[aria-pressed="true"] { background: #e0a273; color: #211614; border-color: #e0a273; }
+  button:focus-visible { outline: 2px solid #ffd19e; outline-offset: 3px; }
+  #pose-description { min-height: 2.6em; color: #d4bcaa; margin: 0; }
+
+  /* The avatar uses one 100-unit coordinate system. Change its width to resize it. */
+  .eightbit {
+    --ink: #151822;
+    --cream: #ffe6b7;
+    --case: #e1ba8b;
+    --bevel: #ab795b;
+    --copper: #e59560;
+    --blue: #aee8e2;
+    width: min(13rem, 78vw);
+    aspect-ratio: 1;
+    position: relative;
+    container-type: inline-size;
+    isolation: isolate;
+  }
+  .sprite, .part { position: absolute; }
+  .sprite { inset: 0; transform-origin: 50% 85%; }
+  .part { left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
+  .shadow { --x: 18%; --y: 88%; --w: 63%; --h: 5%; background: #111016a0; }
+  .shell {
+    --x: 17%; --y: 17%; --w: 68%; --h: 65%;
+    background: var(--ink);
+    clip-path: polygon(0 15%, 6% 15%, 6% 7%, 16% 7%, 16% 0, 84% 0, 84% 7%, 94% 7%, 94% 15%, 100% 15%, 100% 86%, 94% 86%, 94% 94%, 84% 94%, 84% 100%, 12% 100%, 12% 94%, 5% 94%, 5% 85%, 0 85%);
+  }
+  .shell::before {
+    content: "";
+    position: absolute;
+    inset: 6% 6%;
+    background: linear-gradient(var(--cream) 0 12%, var(--case) 12% 86%, var(--bevel) 86%);
+    clip-path: inherit;
+  }
+  .shell::after {
+    content: "";
+    position: absolute;
+    inset: 6% 37% auto 36%;
+    height: 7%;
+    background: var(--ink);
+    box-shadow: 0 1.8cqw var(--bevel);
+  }
+  .screen {
+    --x: 25%; --y: 31%; --w: 52%; --h: 34%;
+    border: 2cqw solid var(--ink);
+    background: #212d3b;
+    box-shadow: inset 0 1.6cqw #405360, inset 0 -1.6cqw #101923;
+  }
+  .eye {
+    --y: 40%; --w: 10%; --h: 12%;
+    background: var(--blue);
+    clip-path: polygon(18% 0, 82% 0, 82% 16%, 100% 16%, 100% 83%, 82% 83%, 82% 100%, 18% 100%, 18% 83%, 0 83%, 0 16%, 18% 16%);
+  }
+  .eye-left { --x: 35%; }
+  .eye-right { --x: 56%; }
+  .mouth {
+    --x: 47%; --y: 54%; --w: 9%; --h: 6%;
+    background: var(--blue);
+    clip-path: polygon(0 0, 22% 0, 22% 42%, 78% 42%, 78% 0, 100% 0, 100% 70%, 78% 70%, 78% 100%, 22% 100%, 22% 70%, 0 70%);
+  }
+  .dial {
+    --x: 28%; --y: 69%; --w: 13%; --h: 8%;
+    background: var(--ink);
+    clip-path: polygon(28% 0, 72% 0, 72% 23%, 100% 23%, 100% 76%, 72% 76%, 72% 100%, 28% 100%, 28% 76%, 0 76%, 0 23%, 28% 23%);
+  }
+  .dial::before { content: ""; position: absolute; inset: 22%; background: var(--copper); clip-path: inherit; }
+  .vent {
+    --x: 61%; --y: 69%; --w: 13%; --h: 8%;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 1.6cqw, transparent 1.6cqw 3.8cqw);
+  }
+  .foot {
+    --y: 77%; --w: 22%; --h: 13%;
+    border: 2cqw solid var(--ink);
+    background: linear-gradient(90deg, var(--bevel) 0 28%, var(--case) 28%);
+    clip-path: polygon(0 28%, 16% 28%, 16% 0, 76% 0, 76% 25%, 100% 25%, 100% 100%, 0 100%);
+  }
+  .foot-left { --x: 23%; }
+  .foot-right { --x: 58%; }
+  .hand {
+    --y: 53%; --w: 19%; --h: 18%;
+    background: var(--ink);
+    clip-path: polygon(17% 0, 78% 0, 78% 18%, 100% 18%, 100% 76%, 81% 76%, 81% 100%, 24% 100%, 24% 81%, 0 81%, 0 24%, 17% 24%);
+  }
+  .hand::after { content: ""; position: absolute; inset: 21%; background: #5c7384; clip-path: inherit; }
+  .hand-left { --x: 7%; transform: rotate(15deg); }
+  .hand-right { --x: 74%; transform-origin: 16% 50%; }
+  .ribbon {
+    --x: 84%; --y: 47%; --w: 11%; --h: 26%;
+    background: var(--ink);
+    transform: rotate(-12deg);
+    transform-origin: 30% 80%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 81%, 0 100%);
+  }
+  .ribbon::before { content: ""; position: absolute; inset: 8% 20% 14%; background: var(--copper); clip-path: inherit; }
+  .spark { --x: 85%; --y: 15%; --w: 12%; --h: 12%; background: #ffd588; opacity: 0;
+    clip-path: polygon(37% 0, 63% 0, 63% 36%, 100% 36%, 100% 64%, 63% 64%, 63% 100%, 37% 100%, 37% 64%, 0 64%, 0 36%, 37% 36%);
+  }
+  [data-pose="idle"] .sprite { animation: float 1.3s steps(4, end); }
+  [data-pose="blink"] .eye { animation: blink .55s steps(2, end); }
+  [data-pose="peek"] .eye, [data-pose="peek"] .mouth { animation: peek 1.15s steps(3, end); }
+  [data-pose="wave"] .hand-left { transform-origin: 88% 40%; animation: wave .9s steps(3, end); }
+  [data-pose="thinking"] .eye { animation: think-eyes 1.35s steps(3, end); }
+  [data-pose="thinking"] .mouth { animation: think-mouth 1.35s steps(2, end); }
+  [data-pose="celebrate"] .sprite { animation: hop .75s steps(4, end); }
+  [data-pose="celebrate"] .spark { animation: spark .75s steps(2, end); }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4%); } }
+  @keyframes blink { 0%, 32%, 75%, 100% { transform: scaleY(1); } 48%, 57% { transform: scaleY(.15); } }
+  @keyframes peek { 0%, 100% { transform: translateX(0); } 26%, 74% { transform: translateX(-45%); } }
+  @keyframes wave { 0%, 100% { transform: rotate(15deg); } 23%, 66% { transform: rotate(80deg); } 45%, 83% { transform: rotate(39deg); } }
+  @keyframes think-eyes { 0%, 100% { transform: translate(0); } 26%, 72% { transform: translate(28%, -28%); } }
+  @keyframes think-mouth { 0%, 100% { transform: scaleX(1); } 25%, 75% { transform: scaleX(.45) translateY(18%); } }
+  @keyframes hop { 0%, 100% { transform: translateY(0); } 48% { transform: translateY(-10%); } 83% { transform: scaleY(.93); } }
+  @keyframes spark { 0%, 100% { opacity: 0; } 25%, 70% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .eightbit .part, .eightbit .sprite { animation: none; }
+    [data-pose="blink"] .eye { transform: scaleY(.2); }
+    [data-pose="peek"] :is(.eye, .mouth) { transform: translateX(-42%); }
+    [data-pose="wave"] .hand-left { transform-origin: 88% 40%; transform: rotate(75deg); }
+    [data-pose="thinking"] .eye { transform: translate(25%, -25%); }
+    [data-pose="celebrate"] .spark { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>8bit</h1>
+  <div class="stage">
+    <div class="eightbit" role="img" aria-label="Pixel mascot with a cream console shell, blue face and copper bookmark">
+      <span class="part shadow"></span>
+      <div class="sprite" aria-hidden="true">
+        <span class="part foot foot-left"></span><span class="part foot foot-right"></span>
+        <span class="part hand hand-left"></span><span class="part shell"></span>
+        <span class="part screen"></span><span class="part eye eye-left"></span>
+        <span class="part eye eye-right"></span><span class="part mouth"></span>
+        <span class="part dial"></span><span class="part vent"></span>
+        <span class="part ribbon"></span><span class="part hand hand-right"></span>
+        <span class="part spark"></span>
+      </div>
+    </div>
+  </div>
+  <div class="controls" role="group" aria-label="Preview an animation">
+    <button type="button" data-action="idle" aria-pressed="false">Idle</button>
+    <button type="button" data-action="blink" aria-pressed="false">Blink</button>
+    <button type="button" data-action="peek" aria-pressed="false">Peek</button>
+    <button type="button" data-action="wave" aria-pressed="false">Wave</button>
+    <button type="button" data-action="thinking" aria-pressed="false">Thinking</button>
+    <button type="button" data-action="celebrate" aria-pressed="false">Celebrate</button>
+  </div>
+  <p id="pose-description" aria-live="polite">Choose an animation to play it.</p>
+</main>
+<script>
+  const avatar = document.querySelector('.eightbit');
+  const controls = [...document.querySelectorAll('[data-action]')];
+  const description = document.querySelector('#pose-description');
+  const captions = {
+    idle: 'Idle · A short mechanical bob.',
+    blink: 'Blink · A quick screen-eye shutter.',
+    peek: 'Peek · Looks inward toward the notebook.',
+    wave: 'Wave · A greeting with the free hand.',
+    thinking: 'Thinking · Looks up and purses its mouth.',
+    celebrate: 'Celebrate · A small hop and a copper spark.'
+  };
+  for (const button of controls) {
+    button.addEventListener('click', () => {
+      const pose = button.dataset.action;
+      delete avatar.dataset.pose;
+      // Recalculate styles so selecting the same pose replays it.
+      void avatar.offsetWidth;
+      avatar.dataset.pose = pose;
+      for (const control of controls) control.setAttribute('aria-pressed', String(control === button));
+      description.textContent = captions[pose];
+    });
+  }
+</script>
+</body>
+</html>
